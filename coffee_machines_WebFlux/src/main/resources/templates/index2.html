@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <meta http-equiv="Content-Type" content="text/html" charset="UTF-8" />
+</head>
+<body>
+<div class="p-5 mb-4 bg-light rounded-3">
+    <div class="d-md-block bg-light sidebar collapse text-center">
+        <h2 class="display-4 fw-normal">Spring WebFlux + Thymeleaf</h2>
+    </div>
+</div>
+<div class="container-fluid">
+    <div class="row mb-3">
+        <div class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
+            <h4 class="my-0 fw-normal text-center">Beverages</h4>
+            <div class="card-body">
+                <a class="w-100 btn btn-lg btn-primary" th:href="@{/get-americano}" role="button">Americano</a>
+            </div>
+            <div class="card-body">
+                <a class="w-100 btn btn-lg btn-primary" th:href="@{/get-espresso}" role="button">Espresso</a>
+            </div>
+            <div class="card-body">
+                <a class="w-100 btn btn-lg btn-primary" th:href="@{/get-doubleespresso}" role="button">Double Espresso</a>
+            </div>
+            <h4 class="my-0 fw-normal text-center">Service</h4>
+            <div class="card-body">
+                <a class="w-100 btn btn-lg btn-primary" th:href="@{/fill-coffee-and-water}" role="button">Fill All</a>
+            </div>
+            <div class="card-body">
+                <a class="w-100 btn btn-lg btn-primary" th:href="@{/fill-water}" role="button">Fill Water Tank</a>
+            </div>
+            <div class="card-body">
+                <a class="w-100 btn btn-lg btn-primary" th:href="@{/fill-coffee}" role="button">Fill Coffee Tank</a>
+            </div>
+        </div>
+        <div class="col-md-6 ms-sm-auto col-lg-8 px-md-4">
+            <div class="table-responsive">
+                <table class="table table-striped table-sm">
+                    <thead>
+                    <tr>
+                        <td><h5 class="my-0 fw-normal text-center">Occurred Event</h5></td>
+                        <td><h5 class="my-0 fw-normal text-center">Event Time</h5></td>
+                        <td><h5 class="my-0 fw-normal text-center">Fill Water Tank</h5></td>
+                        <td><h5 class="my-0 fw-normal text-center">Fill Coffee Tank</h5></td>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="savedEvent : ${savedEvent}">
+                        <!--<td class="my-0 fw-normal text-center" th:text = "${str}" >...</td>-->
+                        <!--<td th:utext="${savedEvent.get('occurredEvent')}"></td>
+                        <td th:utext="${savedEvent.get('eventTime')}"></td>
+                        <td th:utext="${savedEvent.get('fillTheWaterTank')}"></td>
+                        <td th:utext="${savedEvent.get('fillCoffeeTank')}"></td>-->
+                        <td class="my-0 fw-normal text-center" th:utext="${savedEvent.occurredEvent}"></td>
+                        <td class="my-0 fw-normal text-center" th:utext="${savedEvent.eventTime}"></td>
+                        <td class="my-0 fw-normal text-center" th:utext="${savedEvent.fillTheWaterTank}"></td>
+                        <td class="my-0 fw-normal text-center" th:utext="${savedEvent.fillCoffeeTank}"></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
+            <h4 class="my-0 fw-normal text-center">Statistics</h4>
+            <div class="card-body">
+                <a class="w-100 btn btn-lg btn-primary" th:href="@{/get-latest-entry}" role="button">Last Entry</a>
+            </div>
+            <div class="card-body">
+                <a class="w-100 btn btn-lg btn-primary" th:href="@{/get-all-record-start-machine}" role="button">Start Machine</a>
+            </div>
+            <div class="card-body">
+                <a class="w-100 btn btn-lg btn-primary" th:href="@{/get-all-record-americano}" role="button">Americano</a>
+            </div>
+            <div class="card-body">
+                <a class="w-100 btn btn-lg btn-primary" th:href="@{/get-all-record-espresso}" role="button">Espresso</a>
+            </div>
+            <div class="card-body">
+                <a class="w-100 btn btn-lg btn-primary" th:href="@{/get-all-record-doubleespresso}" role="button">Double Espresso</a>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
