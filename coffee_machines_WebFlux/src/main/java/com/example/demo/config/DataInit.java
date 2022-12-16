@@ -5,6 +5,8 @@ import com.example.demo.dao.SavedEventDAOImpl;
 import com.example.demo.entity.SavedEvent;
 import com.example.demo.util.idgenerator.*;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
@@ -16,8 +18,9 @@ import java.time.LocalDateTime;
 public class DataInit implements ApplicationRunner {
     //при каждом новом запуске кофемашины заполняем баки с водой и кофе
 
-    private SavedEventDAOImpl savedEventDAOImpl;
-    private IdGenerator idGenerator;
+    private static final Logger logger = LoggerFactory.getLogger(DataInit.class);
+    private final SavedEventDAOImpl savedEventDAOImpl;
+    private final IdGenerator idGenerator;
 
     @Autowired
     public DataInit(SavedEventDAOImpl savedEventDAOImpl, IdGenerator idGenerator){
@@ -37,6 +40,6 @@ public class DataInit implements ApplicationRunner {
                 .build()
         );
 
-        System.out.println(">> Data init complete");
+        logger.info("Data init complete.");
     }
 }

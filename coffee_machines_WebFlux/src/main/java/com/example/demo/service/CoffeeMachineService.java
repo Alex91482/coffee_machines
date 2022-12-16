@@ -5,6 +5,8 @@ import com.example.demo.entity.SavedEvent;
 import com.example.demo.service.beverages.AbstractCoffeeBeverages;
 import com.example.demo.service.beverages.EnumBeverages;
 import com.example.demo.util.idgenerator.IdGenerator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.ConnectableFlux;
 import reactor.core.publisher.Flux;
@@ -17,6 +19,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 @Service
 public class CoffeeMachineService {
 
+    private static final Logger logger = LoggerFactory.getLogger(CoffeeMachineService.class);
     private final SavedEventDAOImpl savedEventDAOImpl; //взаимодействие с бд
     private final BeveragesCoffeeFactory beveragesCoffeeFactory; //фабрика по созданию напитков
     private final IdGenerator idGenerator; //генератор id для сущностей
@@ -32,7 +35,7 @@ public class CoffeeMachineService {
     private final ArrayBlockingQueue<SavedEvent> myBlockingQueue = new ArrayBlockingQueue<>(100, true);
     private final AtomicBoolean connectFlag = new AtomicBoolean(false);
 
-    private final ConnectableFlux<String> myEventGenerator = Flux.create(event ->{
+    private final ConnectableFlux<SavedEvent> myEventGenerator = Flux.create(event ->{
         try{
             while(true){
                 Thread.sleep(5000);
@@ -44,12 +47,10 @@ public class CoffeeMachineService {
             connectFlag.getAndSet(false);
             event.complete();
         }catch (Exception e) {
+            logger.error("Exception in loop publisher: {}", e.getMessage());
             event.error(new RuntimeException(e));
         }
-    }).map(event -> {
-        SavedEvent se = (SavedEvent) event;
-        return se.getOccurredEvent();
-    }).publish();
+    }).map(event -> (SavedEvent) event).publish();
 
 
     public Flux<String> getBeverages(EnumBeverages enumBeverages) {
@@ -61,7 +62,11 @@ public class CoffeeMachineService {
                     if(!currentEvents.getOccurredEvent().equals("Not enough ingredients. Fill the tank with coffee and water.")) {
                         myBlockingQueue.add(currentEvents); //добавляем событие в очередь
                         delayedStart();                       //запускаем на всех один поток публикации
-                        return myEventGenerator;
+                        return myEventGenerator.takeWhile(event -> { //выполняем проверку что если заказанный напиток изготовлен прикращаем потреблять события
+                            logger.info("event {} time {}, currentEvent {} time {}", event.getId(),event.getEventTime(), currentEvents.getId(), currentEvents.getEventTime());
+                            return event.getEventTime().isBefore(currentEvents.getEventTime()) || event.getEventTime().isEqual(currentEvents.getEventTime());
+                        }).map(SavedEvent::getOccurredEvent);
+
                     }else{
                         return Flux.just(currentEvents.getOccurredEvent());
                     }
@@ -75,6 +80,7 @@ public class CoffeeMachineService {
                     Thread.sleep(500);
                     myEventGenerator.connect();
                 } catch (Exception e) {
+                    logger.error("Exception delayed start {}", e.getMessage());
                     System.err.println(e);
                 }
             };
@@ -111,7 +117,7 @@ public class CoffeeMachineService {
                     savedEventDAOImpl.save(savedEvent);
                     myBlockingQueue.add(savedEvent);
                     delayedStart();
-                    return myEventGenerator;
+                    return myEventGenerator.takeWhile(event -> event.getEventTime().isAfter(savedEvent.getEventTime())).map(SavedEvent::getOccurredEvent);
                 });
     }
 
