@@ -117,7 +117,10 @@ public class CoffeeMachineService {
                     savedEventDAOImpl.save(savedEvent);
                     myBlockingQueue.add(savedEvent);
                     delayedStart();
-                    return myEventGenerator.takeWhile(event -> event.getEventTime().isAfter(savedEvent.getEventTime())).map(SavedEvent::getOccurredEvent);
+                    return myEventGenerator.takeWhile(event -> { //выполняем проверку что если заказанный напиток изготовлен прикращаем потреблять события
+                        logger.info("event {} time {}, currentEvent {} time {}", event.getId(),event.getEventTime(), savedEvent.getId(), savedEvent.getEventTime());
+                        return event.getEventTime().isBefore(savedEvent.getEventTime()) || event.getEventTime().isEqual(savedEvent.getEventTime());
+                    }).map(SavedEvent::getOccurredEvent);
                 });
     }
 
