@@ -10,8 +10,11 @@ import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.repository.config.EnableReactiveMongoRepositories;
 
 @Configuration
-@EnableReactiveMongoRepositories(basePackages = "com.example.demo.dao")
+@EnableReactiveMongoRepositories(basePackages = "com.example.demo.repositories")
 public class MongoConfig extends AbstractReactiveMongoConfiguration {
+
+    @Value("${mongodb.url}")
+    String mongoUri;
 
     @Value("${mongodb.port}")
     private String port;
@@ -21,7 +24,7 @@ public class MongoConfig extends AbstractReactiveMongoConfiguration {
 
     @Override
     public MongoClient reactiveMongoClient() {
-        return MongoClients.create();
+        return MongoClients.create(mongoUri);
     }
 
     @Override

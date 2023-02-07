@@ -1,4 +1,4 @@
-package com.example.demo.dao;
+package com.example.demo.repositories;
 
 import com.example.demo.entity.SavedEvent;
 import org.springframework.data.mongodb.repository.ReactiveMongoRepository;
