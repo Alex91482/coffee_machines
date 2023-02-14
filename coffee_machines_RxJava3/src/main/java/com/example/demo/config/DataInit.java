@@ -29,7 +29,7 @@ public class DataInit implements ApplicationRunner {
     @Override
     public void run(ApplicationArguments args){
 
-        savedEventDAO.checkAndCreateTestDB()
+        /*savedEventDAO.checkAndCreateTestDB()
                 .subscribe(
                         success -> {
                             SavedEvent savedEvent = new SavedEvent(
@@ -43,6 +43,6 @@ public class DataInit implements ApplicationRunner {
                             logger.info(success);
                         },
                         error -> logger.error("Exception {}", error.getMessage())
-        );
+        );*/
     }
 }

@@ -1,5 +1,7 @@
 package com.example.demo.service;
 
+import com.example.demo.entity.SavedEvent;
+import com.example.demo.entity.beverages.TypesCoffeeEvent;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.observables.ConnectableObservable;
 
@@ -16,11 +18,11 @@ public class CoffeeMachineService {
 
     private static final Logger logger = LoggerFactory.getLogger(CoffeeMachineService.class);
 
-    private final ArrayBlockingQueue<String> myBlockingQueue = new ArrayBlockingQueue<>(1000, true);
+    private final ArrayBlockingQueue<SavedEvent> myBlockingQueue = new ArrayBlockingQueue<>(1000, true);
     private final AtomicBoolean connectFlag =  new AtomicBoolean(false);
 
-    private ConnectableObservable<String> observable = Observable.create(emitter ->
-            Observable.interval(5, TimeUnit.SECONDS).subscribe(i ->{
+    private final ConnectableObservable<SavedEvent> observable = Observable.create(emitter ->
+            Observable.interval(2, TimeUnit.SECONDS).subscribe(i ->{
                 try {
                     if (myBlockingQueue.isEmpty()) {
                         connectFlag.getAndSet(false);
@@ -29,12 +31,15 @@ public class CoffeeMachineService {
                         emitter.onNext(myBlockingQueue.poll());
                     }
                 }catch (Exception e){
+                    logger.error("Exception while fetching element: {}", e.getMessage());
                     emitter.onError(e);
                 }
             })
-    ).map(event -> (String) event).publish();
+    ).map(event -> (SavedEvent) event).publish();
 
-    //public ConnectableObservable<String> getCoffeeStream(){
-    //    return observable;
-    //}
+    public Observable<String> getCoffeeStreamTest(TypesCoffeeEvent typesCoffeeEvent){
+        //myBlockingQueue.add(savedEvent1);
+        observable.connect();
+        return observable.map(savedEvent -> savedEvent.getCoffeeEvent().getTypesCoffeeEvent().name());
+    }
 }
