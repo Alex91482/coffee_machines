@@ -9,10 +9,12 @@ import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 public class CoffeeMachineServiceTest {
 
     //@Test
-    public void testObservable(){
+    /*public void testObservable(){
         try {
             IdGenerator idGenerator = new IdGenerator();
             CoffeeMachineService cms = new CoffeeMachineService();
@@ -31,5 +33,18 @@ public class CoffeeMachineServiceTest {
         }catch (Exception e){
             e.printStackTrace();
         }
+    }*/
+
+    //@Test
+    public void testSwitch(){
+        var control = "";
+        var str = "Hi";
+        switch (str){
+            case "hi" -> control = "error";
+            case "Hi" -> control = "success";
+            case "haudiho" -> control = "error_ho";
+            default -> control = "default";
+        }
+        assertEquals(control, "success");
     }
 }

@@ -1,7 +1,7 @@
 package com.example.demo.dao;
 
 import com.example.demo.entity.SavedEvent;
-import com.example.demo.repositories.SavedEventRepository;
+import com.example.demo.dao.repositories.SavedEventRepository;
 import com.example.demo.util.IdGenerator;
 import com.mongodb.reactivestreams.client.MongoClients;
 import io.reactivex.rxjava3.core.Single;
@@ -21,6 +21,11 @@ public class SavedEventDAOImpl implements SavedEventDAO{
     }
 
     private static final Logger logger = LoggerFactory.getLogger(SavedEventDAOImpl.class);
+
+    @Override
+    public Single<SavedEvent> findFirstByOrderByEventTimeDesc(){
+        return savedEventRepository.findFirstByOrderByEventTimeDesc();
+    }
 
     @Override
     public Single<String> checkAndCreateTestDB(){

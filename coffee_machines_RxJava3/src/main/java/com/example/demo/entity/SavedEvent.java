@@ -1,7 +1,6 @@
 package com.example.demo.entity;
 
 import lombok.Getter;
-import lombok.Setter;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.data.annotation.Id;

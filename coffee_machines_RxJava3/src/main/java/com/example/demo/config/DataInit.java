@@ -4,6 +4,7 @@ import com.example.demo.dao.SavedEventDAO;
 import com.example.demo.dao.SavedEventDAOImpl;
 import com.example.demo.entity.CoffeeEvent;
 import com.example.demo.entity.SavedEvent;
+import com.example.demo.entity.beverages.TypesCoffeeEvent;
 import com.example.demo.util.IdGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,7 +30,7 @@ public class DataInit implements ApplicationRunner {
     @Override
     public void run(ApplicationArguments args){
 
-        /*savedEventDAO.checkAndCreateTestDB()
+        savedEventDAO.checkAndCreateTestDB()
                 .subscribe(
                         success -> {
                             SavedEvent savedEvent = new SavedEvent(
@@ -37,12 +38,12 @@ public class DataInit implements ApplicationRunner {
                                     LocalDateTime.now(),
                                     1000,
                                     1000,
-                                    new CoffeeEvent()
+                                    new CoffeeEvent(TypesCoffeeEvent.Filling_Coffee_And_Water)
                             );
                             savedEventDAO.save(savedEvent);
                             logger.info(success);
                         },
                         error -> logger.error("Exception {}", error.getMessage())
-        );*/
+        );
     }
 }
