@@ -11,6 +11,7 @@ public class CoffeeSubscription implements Subscription{
 
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
     private CountDownLatch countDownLatch = new CountDownLatch(1);
+    private AtomicBoolean countFlag = new AtomicBoolean(false);
     private final ArrayBlockingQueue<SavedEvent> myBlockingQueue = new ArrayBlockingQueue<>(1000, true);
     private SavedEvent finishedCoffee;
     private final AtomicBoolean flag = new AtomicBoolean(false);
@@ -26,7 +27,7 @@ public class CoffeeSubscription implements Subscription{
     @Override
     public void request(long n){
         try {
-            if(countDownLatch.getCount() <= 0) {            //если барьер был сломан
+            if(!countFlag.getAndSet(true)) {        //если барьер был сломан
                 countDownLatch = new CountDownLatch(1);     //устанавливаем новый барьер
             }
 
@@ -37,6 +38,7 @@ public class CoffeeSubscription implements Subscription{
                             if (myBlockingQueue.isEmpty()) {            //остались ли еще события
                                 flag.getAndSet(false);          //событий больше нет сбрасываем флаг
                                 countDownLatch.countDown();             //сбрасывем барьер для ожидающих потоков
+                                countFlag.getAndSet(false);
                                 break;
                             }
                             Thread.sleep(3000);                    //эмитация готовки кофе
@@ -45,6 +47,7 @@ public class CoffeeSubscription implements Subscription{
                             System.out.println("Current event: " + finishedCoffee.coffeeEvent().getTypesCoffeeEvent());
 
                             countDownLatch.countDown();                 //сбрасываем барьер
+                            countFlag.getAndSet(false);         //устанавливаем флаг что барьер сломан
                         }
                     } catch (Exception e) {
                         System.err.println(LocalTime.now() + " Exception in loop!");
