@@ -25,7 +25,7 @@ public class Main {
             try {
                 future.get(1000, TimeUnit.MILLISECONDS);
             }catch (Exception e){
-                System.err.println("Намудрил ты хрени");
+                System.err.println("Time out exception: " + e.getMessage());
             }
         }
         coffeeService.stop();

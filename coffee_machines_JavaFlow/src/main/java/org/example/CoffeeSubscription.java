@@ -11,7 +11,7 @@ public class CoffeeSubscription implements Subscription{
 
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
     private CountDownLatch countDownLatch = new CountDownLatch(1);
-    private AtomicBoolean countFlag = new AtomicBoolean(false);
+    private final AtomicBoolean countFlag = new AtomicBoolean(false);
     private final ArrayBlockingQueue<SavedEvent> myBlockingQueue = new ArrayBlockingQueue<>(1000, true);
     private SavedEvent finishedCoffee;
     private final AtomicBoolean flag = new AtomicBoolean(false);
