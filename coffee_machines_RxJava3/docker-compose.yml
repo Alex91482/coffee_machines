@@ -10,4 +10,3 @@ services:
       - /home/barry/mongodb/database:/data/db
     ports:
       - 27017:27017
-    restart: unless-stopped
