@@ -8,7 +8,11 @@ import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDateTime;
+import java.util.Objects;
 
+/**
+ * Запись о состоянии кофемашины
+ */
 @Scope(scopeName = "request", proxyMode = ScopedProxyMode.TARGET_CLASS)
 @Document
 @AllArgsConstructor
@@ -18,42 +22,72 @@ public class SavedEvent {
 
     @Id
     @Getter @Setter
-    private long id;                    //айди записи состояния
+    private long id;
 
+    /**
+     * произошедшее событие
+     */
     @Getter @Setter
-    private String occurredEvent;       //произошедшее событие
+    private String occurredEvent;
 
+    /**
+     * время когда произошло событие
+     */
     @Getter @Setter
-    private LocalDateTime eventTime;    //время когда произошло событие
+    private LocalDateTime eventTime;
 
+    /**
+     * уровень воды в баке
+     */
     @Getter @Setter
-    private int fillTheWaterTank;       //уровень воды в баке
+    private int fillTheWaterTank;
 
+    /**
+     * заполнение бака кофе
+     */
     @Getter @Setter
-    private int fillCoffeeTank;         //заполнение бака кофе
+    private int fillCoffeeTank;
 
-    //максимальная вместимость для данной кофемашины
+    /**
+     * максимальная вместимость для данной кофемашины
+     * максимальный уровень воды в баке
+     */
     @Transient
     @Getter
-    private static final int maxWaterLevel = 1000; //максимальный уровень воды в баке
+    private static final int maxWaterLevel = 1000;
+    /**
+     * максимальная вместимость для данной кофемашины
+     * мксимльный уровень коффе
+     */
     @Transient
     @Getter
-    private static final int maxCoffeeLevel = 1000; //мксимльный уровень коффе
+    private static final int maxCoffeeLevel = 1000;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        SavedEvent that = (SavedEvent) o;
+
+        if (id != that.id) return false;
+        return Objects.equals(eventTime, that.eventTime);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = (int) (id ^ (id >>> 32));
+        result = 31 * result + (eventTime != null ? eventTime.hashCode() : 0);
+        return result;
+    }
 
     @Override
     public String toString(){
-        return new StringBuilder()
-                .append("Saved Event = [ id = ")
-                .append(id)
-                .append(", occurred Event = ")
-                .append(occurredEvent)
-                .append(", event time = ")
-                .append(eventTime)
-                .append(", fill the water tank = ")
-                .append(fillTheWaterTank)
-                .append(", fill the coffee tank = ")
-                .append(fillCoffeeTank)
-                .append(" ]")
-                .toString();
+        return "Saved Event = [ id = " + id +
+                ", occurred Event = " + occurredEvent +
+                ", event time = " + eventTime +
+                ", fill the water tank = " + fillTheWaterTank +
+                ", fill the coffee tank = " + fillCoffeeTank +
+                " ]";
     }
 }

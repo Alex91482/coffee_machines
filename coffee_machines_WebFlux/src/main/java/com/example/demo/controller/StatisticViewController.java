@@ -2,6 +2,7 @@ package com.example.demo.controller;
 
 import com.example.demo.entity.SavedEvent;
 import com.example.demo.service.CoffeeMachineService;
+import com.example.demo.service.StatisticService;
 import com.example.demo.service.beverages.EnumBeverages;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,9 +20,11 @@ import java.util.List;
 public class StatisticViewController {
 
     private final CoffeeMachineService coffeeMachineService;
+    private final StatisticService statisticService;
 
-    public StatisticViewController(CoffeeMachineService coffeeMachineService){
+    public StatisticViewController(CoffeeMachineService coffeeMachineService, StatisticService statisticService){
         this.coffeeMachineService = coffeeMachineService;
+        this.statisticService = statisticService;
     }
 
     @GetMapping("/get-latest-entry")
@@ -37,7 +40,7 @@ public class StatisticViewController {
     public Mono<Rendering> getStartMachineEventView(){
         return Mono.just(
                 Rendering.view("index2")
-                        .modelAttribute("savedEvent", coffeeMachineService.getByAllEventToStartMachine())
+                        .modelAttribute("savedEvent", statisticService.getByAllEventToStartMachine())
                         .build());
     }
 
@@ -45,7 +48,7 @@ public class StatisticViewController {
     public Mono<Rendering> getAmericanoEventView(){
         return Mono.just(
                 Rendering.view("index2")
-                        .modelAttribute("savedEvent", coffeeMachineService.getByAllEventToAmericano())
+                        .modelAttribute("savedEvent", statisticService.getByAllEventToAmericano())
                         .build());
     }
 
@@ -53,7 +56,7 @@ public class StatisticViewController {
     public Mono<Rendering> getEspressoEventView(){
         return Mono.just(
                 Rendering.view("index2")
-                        .modelAttribute("savedEvent", coffeeMachineService.getByAllEventToEspresso())
+                        .modelAttribute("savedEvent", statisticService.getByAllEventToEspresso())
                         .build());
     }
 
@@ -61,7 +64,7 @@ public class StatisticViewController {
     public Mono<Rendering> getDoubleEspressoEventView(){
         return Mono.just(
                 Rendering.view("index2")
-                        .modelAttribute("savedEvent", coffeeMachineService.getByAllEventToDoubleEspresso())
+                        .modelAttribute("savedEvent", statisticService.getByAllEventToDoubleEspresso())
                         .build());
     }
 

@@ -29,7 +29,7 @@ public class ViewController {
 
     @GetMapping("/get-americano")
     public Mono<Rendering> getBeverageAmericano(final Model model){
-        //отправляем сообщения о приготовленных напитках
+        //добавить заказ в очередь американо отправляем сообщения о приготовленных напитках
         return Mono.just(
                 Rendering.view("index1")
                         .modelAttribute("strs",
@@ -39,7 +39,7 @@ public class ViewController {
 
     @GetMapping("/get-espresso")
     public Mono<Rendering> getBeverageEspresso(final Model model){
-        //отправляем сообщения о приготовленных напитках
+        //добавить заказ в очередь эспрессо отправляем сообщения о приготовленных напитках
         return Mono.just(
                 Rendering.view("index1")
                         .modelAttribute("strs",
@@ -49,7 +49,7 @@ public class ViewController {
 
     @GetMapping("/get-doubleespresso")
     public Mono<Rendering> getBeveragesDoubleEspresso(final Model model){
-
+        //добавить заказ в очередь двойное эспрессо отправляем сообщения о приготовленных напитках
         return Mono.just(
                 Rendering.view("index1")
                         .modelAttribute("strs",
@@ -59,7 +59,7 @@ public class ViewController {
 
     @GetMapping("/fill-water")
     public Mono<Rendering> setWater(){
-        //
+        //добавить событие в очередь заполнить воду
         return Mono.just(
                 Rendering.view("index1")
                         .modelAttribute("strs",
@@ -69,7 +69,7 @@ public class ViewController {
 
     @GetMapping("/fill-coffee")
     public Mono<Rendering> setCoffee(){
-        //
+        //добавить событие в очередь заполнить коффе
         return Mono.just(
                 Rendering.view("index1")
                         .modelAttribute("strs",
@@ -79,7 +79,7 @@ public class ViewController {
 
     @GetMapping("/fill-coffee-and-water")
     public Mono<Rendering> setWaterAndCoffee(){
-        //
+        //добавить событие в очередь заполнить воду и кофе
         return Mono.just(
                 Rendering.view("index1")
                         .modelAttribute("strs",

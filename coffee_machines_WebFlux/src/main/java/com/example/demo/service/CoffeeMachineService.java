@@ -12,8 +12,8 @@ import reactor.core.publisher.ConnectableFlux;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 @Service
@@ -75,23 +75,25 @@ public class CoffeeMachineService {
 
     private void delayedStart(){
         if (!connectFlag.getAndSet(true)) {
-            Runnable task = () -> {
+            CompletableFuture.runAsync(() -> {
                 try {
                     Thread.sleep(500);
                     myEventGenerator.connect();
                 } catch (Exception e) {
                     logger.error("Exception delayed start {}", e.getMessage());
-                    System.err.println(e);
+                    e.printStackTrace();
                 }
-            };
-            Thread th1 = new Thread(task);
-            th1.start();
+            });
         }
     }
 
+    /**
+     * метод заполняет баки с кофе и водой
+     * метод будет принемать енум для заполнение кофе или воды или одновременно кофе и воды
+     * @param coffeeAndWaterEnum выбор заполнить бак с водой, заполнить бак с кофе, заполнить оба бака
+     * @return возвращает поток событий в формате записей в журнале
+     */
     public Flux<String> setCoffeeAndWater(CoffeeAndWaterEnum coffeeAndWaterEnum){
-        //метод заполняет баки с кофе и водой
-        //метод будет принемать енум для заполнение кофе или воды или одновременно кофе и воды
         return getMonoLastEvent()
                 .flatMapMany(result -> {
                     int waterLevel = 1000;
@@ -124,8 +126,13 @@ public class CoffeeMachineService {
                 });
     }
 
+    /**
+     * проводим вычитания из текущих показаний хватит ли на напиток кофе и воды
+     * @param lastSavedEvent
+     * @param typeBeverages
+     * @return
+     */
     private SavedEvent subtractTheIngredients(SavedEvent lastSavedEvent, EnumBeverages typeBeverages){
-        //проводим вычитания из текущих показаний хватит ли на напиток кофе и воды
         AbstractCoffeeBeverages beverages = beveragesCoffeeFactory.createCoffeeBeverages(typeBeverages);
         int waterLevel = lastSavedEvent.getFillTheWaterTank() - beverages.getWaterConsumption();
         int coffeeLevel = lastSavedEvent.getFillCoffeeTank() - beverages.getCoffeeConsumption();
@@ -159,22 +166,5 @@ public class CoffeeMachineService {
 
     public int getSizeQueue(){
         return myBlockingQueue.size();
-    }
-
-    public Mono<List<SavedEvent>> getByAllEventToStartMachine(){
-        //получить все события "Coffee Machine start" используется псрото для примера
-        return savedEventDAOImpl.findByOccurredName("Coffee Machine start").collectList();
-    }
-
-    public Mono<List<SavedEvent>> getByAllEventToAmericano(){
-        return savedEventDAOImpl.findByOccurredName("Americano").collectList();
-    }
-
-    public Mono<List<SavedEvent>> getByAllEventToEspresso(){
-        return savedEventDAOImpl.findByOccurredName("Espresso").collectList();
-    }
-
-    public Mono<List<SavedEvent>> getByAllEventToDoubleEspresso(){
-        return savedEventDAOImpl.findByOccurredName("DoubleEspresso").collectList();
     }
 }
