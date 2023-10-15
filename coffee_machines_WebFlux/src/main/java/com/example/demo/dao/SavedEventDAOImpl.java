@@ -2,17 +2,15 @@ package com.example.demo.dao;
 
 
 import com.example.demo.entity.SavedEvent;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-@Service
+@Component
 public class SavedEventDAOImpl implements SavedEventDAO{
 
-    private SavedEventRepository savedEventRepository;
+    private final SavedEventRepository savedEventRepository;
 
-    @Autowired
     public SavedEventDAOImpl(SavedEventRepository savedEventRepository){
         this.savedEventRepository = savedEventRepository;
     }
@@ -30,7 +28,7 @@ public class SavedEventDAOImpl implements SavedEventDAO{
     }
 
     public Flux<SavedEvent> findByOccurredName(String name){
-        return (name != null) ? savedEventRepository.findByOccurredEvent(name) : savedEventRepository.findAll();
+        return savedEventRepository.findByOccurredEvent(name);
     }
 
     public Mono<SavedEvent> update(SavedEvent savedEvent){
