@@ -1,9 +1,9 @@
 ### Spring Boot + RxJava
 
-#### Кончные точки
-- /get-americano
-- /get-espresso
-- /get-doubleespresso
-- /fill-water
-- /fill-coffee
-- /fill-coffee-and-water
+#### Конечные точки
+- /get-americano - заказать американо
+- /get-espresso - заказать эспрессо
+- /get-doubleespresso - заказать двойной эспрессо
+- /fill-water - заполнить бак с водой
+- /fill-coffee - заполнить бак с кофе
+- /fill-coffee-and-water - заполнить баки с водой и кофе
