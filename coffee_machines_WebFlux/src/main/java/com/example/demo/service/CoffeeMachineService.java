@@ -128,9 +128,9 @@ public class CoffeeMachineService {
 
     /**
      * проводим вычитания из текущих показаний хватит ли на напиток кофе и воды
-     * @param lastSavedEvent
-     * @param typeBeverages
-     * @return
+     * @param lastSavedEvent последнее событие
+     * @param typeBeverages кофе который требуется приготовить
+     * @return возвращаем событие кофе который будет приготовлел либо предупреждение что ингредиентов недостаточно
      */
     private SavedEvent subtractTheIngredients(SavedEvent lastSavedEvent, EnumBeverages typeBeverages){
         AbstractCoffeeBeverages beverages = beveragesCoffeeFactory.createCoffeeBeverages(typeBeverages);
