@@ -14,7 +14,8 @@ import reactor.core.publisher.Mono;
 import java.time.LocalDateTime;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 @Service
 public class CoffeeMachineService {
@@ -33,18 +34,15 @@ public class CoffeeMachineService {
 
     //размер очереди ограничен 100 записями, далее они будут перезаписыватся
     private final ArrayBlockingQueue<SavedEvent> myBlockingQueue = new ArrayBlockingQueue<>(100, true);
-    private final AtomicBoolean connectFlag = new AtomicBoolean(false);
+    private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
     private final ConnectableFlux<SavedEvent> myEventGenerator = Flux.create(event ->{
         try{
-            while(true){
-                Thread.sleep(5000);
-                if(myBlockingQueue.isEmpty()){
-                    break;
-                }
-                event.next(myBlockingQueue.poll());
+            while(!myBlockingQueue.isEmpty()){
+                SavedEvent se = myBlockingQueue.poll();
+                Thread.sleep(3000);
+                event.next(se);
             }
-            connectFlag.getAndSet(false);
             event.complete();
         }catch (Exception e) {
             logger.error("Exception in loop publisher: {}", e.getMessage());
@@ -61,30 +59,24 @@ public class CoffeeMachineService {
 
                     if(!currentEvents.getOccurredEvent().equals("Not enough ingredients. Fill the tank with coffee and water.")) {
                         myBlockingQueue.add(currentEvents); //добавляем событие в очередь
-                        delayedStart();                       //запускаем на всех один поток публикации
-                        return myEventGenerator.takeWhile(event -> { //выполняем проверку что если заказанный напиток изготовлен прикращаем потреблять события
-                            logger.info("event {} time {}, currentEvent {} time {}", event.getId(),event.getEventTime(), currentEvents.getId(), currentEvents.getEventTime());
-                            return event.getEventTime().isBefore(currentEvents.getEventTime()) || event.getEventTime().isEqual(currentEvents.getEventTime());
-                        }).map(SavedEvent::getOccurredEvent);
+                        CompletableFuture.runAsync(myEventGenerator::connect, executor);    //запускаем на всех один поток публикации
+                        return myEventGenerator
+                                .takeWhile(event -> {
+                                    //выполняем проверку что если заказанный напиток изготовлен прикращаем потреблять события
+                                    logger.info("event {} time {}, currentEvent {} time {}",
+                                            event.getId(),
+                                            event.getEventTime(),
+                                            currentEvents.getId(),
+                                            currentEvents.getEventTime()
+                                    );
+                                    return event.getEventTime().isBefore(currentEvents.getEventTime()) || event.getEventTime().isEqual(currentEvents.getEventTime());
+                                })
+                                .map(SavedEvent::getOccurredEvent);
 
                     }else{
                         return Flux.just(currentEvents.getOccurredEvent());
                     }
                 });
-    }
-
-    private void delayedStart(){
-        if (!connectFlag.getAndSet(true)) {
-            CompletableFuture.runAsync(() -> {
-                try {
-                    Thread.sleep(500);
-                    myEventGenerator.connect();
-                } catch (Exception e) {
-                    logger.error("Exception delayed start {}", e.getMessage());
-                    e.printStackTrace();
-                }
-            });
-        }
     }
 
     /**
@@ -118,11 +110,19 @@ public class CoffeeMachineService {
 
                     savedEventDAOImpl.save(savedEvent);
                     myBlockingQueue.add(savedEvent);
-                    delayedStart();
-                    return myEventGenerator.takeWhile(event -> { //выполняем проверку что если заказанный напиток изготовлен прикращаем потреблять события
-                        logger.info("event {} time {}, currentEvent {} time {}", event.getId(),event.getEventTime(), savedEvent.getId(), savedEvent.getEventTime());
-                        return event.getEventTime().isBefore(savedEvent.getEventTime()) || event.getEventTime().isEqual(savedEvent.getEventTime());
-                    }).map(SavedEvent::getOccurredEvent);
+                    CompletableFuture.runAsync(myEventGenerator::connect, executor);    //запускаем на всех один поток публикации
+                    return myEventGenerator
+                            .takeWhile(event -> {
+                                //выполняем проверку что если заказанный напиток изготовлен прикращаем потреблять события
+                                logger.info("event {} time {}, currentEvent {} time {}",
+                                        event.getId(),
+                                        event.getEventTime(),
+                                        savedEvent.getId(),
+                                        savedEvent.getEventTime()
+                                );
+                                return event.getEventTime().isBefore(savedEvent.getEventTime()) || event.getEventTime().isEqual(savedEvent.getEventTime());
+                            })
+                            .map(SavedEvent::getOccurredEvent);
                 });
     }
 

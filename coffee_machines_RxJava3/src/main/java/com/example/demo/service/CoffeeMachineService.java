@@ -14,8 +14,9 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 @Service
 public class CoffeeMachineService {
@@ -31,23 +32,24 @@ public class CoffeeMachineService {
     }
 
     private final ArrayBlockingQueue<SavedEvent> myBlockingQueue = new ArrayBlockingQueue<>(1000, true);
-    private final AtomicBoolean connectFlag =  new AtomicBoolean(false);
+    private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
     private final ConnectableObservable<SavedEvent> observable = Observable.create(emitter ->
-            Observable.interval(2, TimeUnit.SECONDS).subscribe(i ->{
-                try {
-                    if (myBlockingQueue.isEmpty()) {
-                        connectFlag.getAndSet(false);
-                        emitter.onComplete();
-                    } else {
-                        emitter.onNext(myBlockingQueue.poll());
+            {
+                try{
+                    while(!myBlockingQueue.isEmpty()){
+                        SavedEvent se = myBlockingQueue.poll();
+                        Thread.sleep(3000);
+                        emitter.onNext(se);
                     }
-                }catch (Exception e){
-                    logger.error("Exception while fetching element: {}", e.getMessage());
-                    emitter.onError(e);
+                    emitter.onComplete();
+                }catch (Exception e) {
+                    logger.error("Exception in loop publisher: {}", e.getMessage());
+                    emitter.onError(new RuntimeException(e));
                 }
             })
-    ).map(event -> (SavedEvent) event).publish();
+            .map(event -> (SavedEvent) event)
+            .publish();
 
     public Observable<String> getCoffeeStreamTest(TypesCoffeeEvent typesCoffeeEvent){
         return coffeeProducer(typesCoffeeEvent)
@@ -75,7 +77,7 @@ public class CoffeeMachineService {
                     }
                     var savedEvent = createSaveEvent(typesCoffeeEvent, waterLevel, coffeeLevel);
                     myBlockingQueue.add(savedEvent);
-                    startObserver();
+                    CompletableFuture.runAsync(observable::connect, executor);
                     return observable.takeWhile(currentEvents -> {
                         logger.info("event {} time {}, currentEvent {} time {}",
                                 savedEvent.getId(),savedEvent.getEventTime(),
@@ -92,12 +94,6 @@ public class CoffeeMachineService {
                     return Observable.just(createSaveEvent(typesCoffeeEvent, waterLevel, coffeeLevel));
             }
         });
-    }
-
-    private void startObserver(){
-        if(!connectFlag.getAndSet(true)){
-            observable.connect();
-        }
     }
 
     private SavedEvent createSaveEvent(TypesCoffeeEvent typesCoffeeEvent, int waterLevel, int coffeeLevel){

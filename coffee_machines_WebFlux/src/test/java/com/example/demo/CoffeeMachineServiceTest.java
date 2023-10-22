@@ -19,7 +19,7 @@ public class CoffeeMachineServiceTest {
     private final BeveragesCoffeeFactory beveragesCoffeeFactory = new BeveragesCoffeeFactory();
     private final SavedEventDAOImpl savedEventDAO = Mockito.mock(SavedEventDAOImpl.class);
 
-    //@Test
+    @Test
     public void setCoffeeTest(){
 
         Mockito.when(savedEventDAO.getTheLatestEntry()).thenReturn(Mono.just(
