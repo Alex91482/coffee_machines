@@ -2,16 +2,14 @@ package org.example;
 
 import org.example.entity.TypesCoffeeEvent;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.TimeUnit;
 
 public class Main {
 
-    private static final List<CompletableFuture<Void>> list = new ArrayList<>();
+    private static final ArrayBlockingQueue<CompletableFuture<Void>> queue = new ArrayBlockingQueue<>(100, true);
 
-    public static void main(String[] args) throws InterruptedException {
+    public static void main(String[] args) {
         System.out.println("Start");
 
         CoffeeService coffeeService = new CoffeeService();
@@ -19,13 +17,11 @@ public class Main {
         createCoffeeStream(coffeeService, TypesCoffeeEvent.Espresso);
         createCoffeeStream(coffeeService, TypesCoffeeEvent.DoubleEspresso);
 
-        Thread.sleep(10000);
-
-        for(CompletableFuture<Void> future : list){
+        while(!queue.isEmpty()){
             try {
-                future.get(1000, TimeUnit.MILLISECONDS);
+                queue.poll().get();
             }catch (Exception e){
-                System.err.println("Time out exception: " + e.getMessage());
+                System.err.println("Exception: " + e.getMessage());
             }
         }
         coffeeService.stop();
@@ -39,6 +35,6 @@ public class Main {
             CoffeeSubscriber coffeeSubscriber = new CoffeeSubscriber();
             coffeeService.getCoffeeStream(coffeeSubscriber, typesCoffeeEvent).subscribe(coffeeSubscriber);
         });
-        list.add(future);
+        queue.add(future);
     }
 }
