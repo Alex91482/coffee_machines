@@ -34,7 +34,7 @@ public class CoffeeSubscriber implements Subscriber<SavedEvent> {
 
     @Override
     public void onNext(SavedEvent item) {
-        this.currentEvent = item;
+        this.currentEvent = new SavedEvent(item.id(), item.eventTime(), item.fillTheWaterTank(), item.fillCoffeeTank(), item.coffeeEvent());
         System.out.println(LocalTime.now().format(form) + " " + Thread.currentThread().getName() + ": " + currentEvent.coffeeEvent().getTypesCoffeeEvent().getCoffeeType());
         subscription.request(1);
     }
