@@ -1,9 +1,13 @@
 package org.example;
 
+import org.example.entity.CoffeeEvent;
+import org.example.entity.SavedEvent;
 import org.example.entity.TypesCoffeeEvent;
 
+import java.time.LocalDateTime;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 
 public class Main {
 
@@ -21,7 +25,8 @@ public class Main {
             try {
                 queue.poll().get();
             }catch (Exception e){
-                System.err.println("Exception: " + e.getMessage());
+                System.err.println("Exception in main: " + e.getMessage());
+                e.printStackTrace();
             }
         }
         coffeeService.stop();
@@ -32,8 +37,9 @@ public class Main {
     private static void createCoffeeStream(CoffeeService coffeeService, TypesCoffeeEvent typesCoffeeEvent){
         var future = CompletableFuture.runAsync(() -> {
             System.out.println(Thread.currentThread().getName() + ": Start");
-            CoffeeSubscriber coffeeSubscriber = new CoffeeSubscriber();
-            coffeeService.getCoffeeStream(coffeeSubscriber, typesCoffeeEvent).subscribe(coffeeSubscriber);
+            var coffeeEvent = coffeeService.createSavedEvent(typesCoffeeEvent);
+            var coffeeSubscriber = new CoffeeSubscriber(coffeeEvent);
+            coffeeService.getCoffeeStream(coffeeSubscriber, coffeeEvent).subscribe(coffeeSubscriber);
         });
         queue.add(future);
     }

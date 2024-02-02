@@ -10,14 +10,19 @@ public class CoffeeSubscriber implements Subscriber<SavedEvent> {
 
     private final DateTimeFormatter form = DateTimeFormatter.ofPattern("HH:mm:ss");
     private Subscription subscription;
-    private SavedEvent savedEvent;
+    private final SavedEvent savedEvent;
+    private SavedEvent currentEvent;
+
+    public CoffeeSubscriber(SavedEvent savedEvent) {
+        this.savedEvent = savedEvent;
+    }
+
+    public long getSaveEventId(){
+        return savedEvent == null ? 0 : savedEvent.id();
+    }
 
     public int getHashCodeLastSaveEvent(){
-        if(savedEvent == null){
-            return 0;
-        }else{
-            return savedEvent.hashCode();
-        }
+        return savedEvent == null ? 0 : savedEvent.hashCode();
     }
 
 
@@ -29,18 +34,18 @@ public class CoffeeSubscriber implements Subscriber<SavedEvent> {
 
     @Override
     public void onNext(SavedEvent item) {
-        savedEvent = item;
-        System.out.println(LocalTime.now().format(form) + " " + Thread.currentThread().getName() + ": " + item.coffeeEvent().getTypesCoffeeEvent().getCoffeeType());
+        this.currentEvent = item;
+        System.out.println(LocalTime.now().format(form) + " " + Thread.currentThread().getName() + ": " + currentEvent.coffeeEvent().getTypesCoffeeEvent().getCoffeeType());
         subscription.request(1);
     }
 
     @Override
     public void onError(Throwable throwable) {
-        System.err.println(throwable.getMessage());
+        System.err.println(LocalTime.now().format(form) + " " + Thread.currentThread().getName() + " Exception in thread " + ": " + throwable.getMessage());
     }
 
     @Override
     public void onComplete() {
-        System.out.println(LocalTime.now().format(form) + " " + Thread.currentThread().getName() + ": " + "Orders are over");
+        System.out.println(LocalTime.now().format(form) + " " + Thread.currentThread().getName() + ": " + "Orders " + savedEvent.coffeeEvent().getTypesCoffeeEvent().getCoffeeType() + " are over");
     }
 }
