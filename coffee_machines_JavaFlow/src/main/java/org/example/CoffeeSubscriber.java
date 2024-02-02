@@ -41,11 +41,11 @@ public class CoffeeSubscriber implements Subscriber<SavedEvent> {
 
     @Override
     public void onError(Throwable throwable) {
-        System.err.println(LocalTime.now().format(form) + " " + Thread.currentThread().getName() + " Exception in thread " + ": " + throwable.getMessage());
+        System.err.println(LocalTime.now().format(form) + " " + Thread.currentThread().getName() + " Exception in thread: " + throwable.getMessage());
     }
 
     @Override
     public void onComplete() {
-        System.out.println(LocalTime.now().format(form) + " " + Thread.currentThread().getName() + ": " + "Orders " + savedEvent.coffeeEvent().getTypesCoffeeEvent().getCoffeeType() + " are over");
+        System.out.println(LocalTime.now().format(form) + " " + Thread.currentThread().getName() + ": Orders " + savedEvent.coffeeEvent().getTypesCoffeeEvent().getCoffeeType() + " are over");
     }
 }
